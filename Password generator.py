@@ -1,31 +1,63 @@
 import hashlib
+import json
 
-def valide_mots_de_passe(mot_de_passe):
+def modifier_le_mots_de_passe():
+    try:
+        with open("mots de passe.json", "r") as fichier:
+            return json.load(fichier)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+def enregistrer_le_mots_de_passe(mots_de_passe):
+    with open("mots de passe.json", "w") as fichier:
+        json.dump(mots_de_passe, fichier, indent=2)
+
+def mots_de_passe_valide(motsdepasse):
     return all([
-        len(mot_de_passe) >= 8,
-        any(char.isupper() for char in mot_de_passe),
-        any(char.islower() for char in mot_de_passe),
-        any(char.isdigit() for char in mot_de_passe),
-        any(char in "!@#$%^&*" for char in mot_de_passe)
+        len(motsdepasse) >= 8,
+        any(char.isupper() for char in motsdepasse),
+        any(char.islower() for char in motsdepasse),
+        any(char.isdigit() for char in motsdepasse),
+        any(char in "!@#$%^&*" for char in motsdepasse)
     ])
 
-def Entrez_un_mots_de_passe():
-    return input("Veuillez choisir un mot de passe : ")
+def ajout_mot_de_passe(nom_utilisateur, motsdepasse, mots_de_passe):
+    if nom_utilisateur not in mots_de_passe:
+        if mots_de_passe_valide(motsdepasse):
+            mot_de_passe_crypte = hashlib.sha256(motsdepasse.encode()).hexdigest()
+            mots_de_passe[nom_utilisateur] = mot_de_passe_crypte
+            enregistrer_le_mots_de_passe(mots_de_passe)
+            print(f"Mot de passe ajouté pour l'utilisateur {nom_utilisateur}.")
+        else:
+            print("Mot de passe invalide. Assurez-vous de respecter les exigences de sécurité.")
+    else:
+        print(f"Un mot de passe existe déjà pour l'utilisateur {nom_utilisateur}.")
 
-def mots_de_passe_crypté(mot_de_passe):
-    return hashlib.sha256(mot_de_passe.encode()).hexdigest()
+def afficher_le_mots_de_passe(mots_de_passe):
+    if not mots_de_passe:
+        print("Aucun mot de passe enregistré.")
+    else:
+        print("Mots de passe enregistrés :")
+        for nom_utilisateur, mot_de_passe_crypte in mots_de_passe.items():
+            print(f"{nom_utilisateur}: {mot_de_passe_crypte}")
 
-print("Le MDP doit contenir au moins huit caractères.")
-print("Le MDP doit contenir au moins une lettre majuscule.")
-print("Le MDP doit contenir au moins une lettre minuscule.")
-print("Le MDP doit contenir au moins un chiffre.")
-print("Le MDP doit contenir au moins un caractère spécial (!, @, #, $, %, ^, &, *).")
+mots_de_passe = modifier_le_mots_de_passe()
 
 while True:
-    mot_de_passe = Entrez_un_mots_de_passe()
-    if valide_mots_de_passe(mot_de_passe):
-        mot_de_passe_crypte = mots_de_passe_crypté(mot_de_passe)
-        print("Mot de passe valide. Mot de passe crypté avec SHA-256 :", mot_de_passe_crypte)
+    print("\nMenu :")
+    print("1. Ajouter un nouveau mot de passe")
+    print("2. Afficher les mots de passe")
+    print("3. Quitter")
+    
+    choix = input("Choisissez une option (1/2/3) : ")
+
+    if choix == "1":
+        nom_utilisateur = input("Entrez le nom d'utilisateur : ")
+        mot_de_passe = input("Entrez le mot de passe : ")
+        ajout_mot_de_passe(nom_utilisateur, mot_de_passe, mots_de_passe)
+    elif choix == "2":
+        afficher_le_mots_de_passe(mots_de_passe)
+    elif choix == "3":
         break
     else:
-        print("Mot de passe invalide. Assurez-vous de respecter les exigences de sécurité.")
+        print("Option invalide. Veuillez choisir 1, 2 ou 3.")
