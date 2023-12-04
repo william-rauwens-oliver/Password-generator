@@ -17,8 +17,10 @@ def enregistrer_mots_de_passe(motsdepasse):
 
 # Valider le MDP
 def valider_mot_de_passe(motsdepasse):
-    return all([len(motsdepasse) >= 8, any(char.isupper() for char in motsdepasse),
-                any(char.islower() for char in motsdepasse), any(char.isdigit() for char in motsdepasse),
+    return all([len(motsdepasse) >= 8, 
+                any(char.isupper() for char in motsdepasse),
+                any(char.islower() for char in motsdepasse), 
+                any(char.isdigit() for char in motsdepasse),
                 any(char in "!@#$%^&*" for char in motsdepasse)])
 
 # Générer un MDP avec random
@@ -31,7 +33,7 @@ def ajouter_mot_de_passe(nom, mot, mots):
     if nom not in mots:
         mot = generer_mot_de_passe() if mot.lower() == "random" else mot
         if not valider_mot_de_passe(mot):
-            print("Mot de passe invalide. Assurez-vous de respecter les exigences de sécurité.")
+            print("Mot de passe invalide. Veuillez respecter les exigences de sécurité.")
             return
         mot_crypte = hashlib.sha256(mot.encode()).hexdigest()
         mots[nom] = mot_crypte
